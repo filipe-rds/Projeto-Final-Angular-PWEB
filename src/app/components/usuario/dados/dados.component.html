@@ -1,0 +1,36 @@
+<div class="p-6  rounded-lg shadow-md max-w-md mx-auto bg-white dark:bg-gray-800">
+  <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Editar Dados do Usuário</h2>
+
+  <form [formGroup]="formulario">
+    <!-- Foto -->
+    <!-- Nome -->
+    <mat-form-field appearance="fill" class="w-full mb-4 text-white">
+      <mat-label>Nome</mat-label>
+      <input matInput placeholder="Digite o nome"  name="nome" formControlName="nome" required>
+    </mat-form-field>
+
+    <!-- Email -->
+    <mat-form-field appearance="fill" class="w-full mb-4">
+      <mat-label>Email</mat-label>
+      <input matInput type="email" placeholder="Digite o email" formControlName="email"  name="email" required>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="w-full mb-4">
+      <mat-label>Senha</mat-label>
+      <input matInput type="password" placeholder="Digite a senha" formControlName="senha"  name="senha" required>
+    </mat-form-field>
+
+    <!-- Botões -->
+    <div class="flex justify-between items-center">
+
+      <button mat-button type="button"
+        class=" text-white px-4 py-2 rounded" (click)="cancelar()">
+        Cancelar
+      </button>
+
+       <button mat-button class=" text-white px-4 py-2 rounded" (click)="salvar()">
+        Salvar
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,28 @@
+<div class="bg-white text-gray-900 p-6 rounded-lg max-w-md mx-auto h-full flex flex-col justify-between">
+  <h2 class="text-2xl font-bold mb-4 text-center">{{ data.titulo }}</h2>
+
+  <form class="flex-grow space-y-4 flex flex-col">
+    <!-- Campo para o atributo nome do Objeto -->
+    <div class="flex-grow">
+      <label for="nome" class="block text-sm font-medium mb-1">Nome</label>
+      <input id="nome" matInput type="text" [(ngModel)]="data.objeto.nome" name="nome"
+        class="w-full p-2 border border-gray-300 rounded bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Digite o nome da disciplina" required />
+    </div>
+
+    <!-- Campo para o atributo descrição do Objeto -->
+    <div class="flex-grow">
+      <label for="descricao" class="block text-sm font-medium mb-1">Descrição</label>
+      <textarea id="descricao" matInput [(ngModel)]="data.objeto.descricao" name="descricao"
+        class="w-full p-2 border border-gray-300 rounded bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Digite a descrição da disciplina"></textarea>
+    </div>
+  </form>
+
+  <div class="flex justify-end mt-6 space-x-2">
+    <button mat-button (click)="onNoClick()"
+      class=" text-white px-4 py-2 rounded">Cancelar</button>
+    <button mat-button (click)="salvar()"
+      class=" text-white px-4 py-2 rounded">Salvar</button>
+  </div>
+</div>

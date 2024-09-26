@@ -1,0 +1,30 @@
+<div class="p-6 rounded-lg shadow-lg max-w-md mx-auto bg-white border border-gray-300 dark:bg-gray-800 w-auto">
+    <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Login</h2>
+    <form class="flex flex-col content-center align-middle text-gray-800 dark:text-white">
+      <label class="mb-2" for="email">E-mail</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        [(ngModel)]="usuario.email"
+        class="border border-gray-300 dark:border-gray-600 rounded px-4 py-2 mb-4 bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-400"
+        placeholder="Digite seu e-mail"
+        required
+      />
+      <label class="mb-2" for="senha">Senha</label>
+      <input
+        id="senha"
+        name="senha"
+        type="password"
+        [(ngModel)]="usuario.senha"
+        class="border border-gray-300 dark:border-gray-600 rounded px-4 py-2 mb-4 bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-400"
+        placeholder="Digite sua senha"
+        required
+      />
+      <div class="grid items-center content-center align-middle px-14">
+        <button type="button" class="bg-blue-500 text-white py-2 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500" (click)="login()" >
+          Entrar
+        </button>
+      </div>
+    </form>
+</div>

@@ -1,0 +1,135 @@
+<div class="flex flex-col min-h-screen bg-white dark:bg-gray-700">
+  <!-- Header/Nav -->
+  <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+    <div class="px-3 py-3 lg:px-5 lg:pl-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center justify-start rtl:justify-end">
+          <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar"
+            type="button"
+            class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+            <span class="sr-only">Open sidebar</span>
+            <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg">
+              <path clip-rule="evenodd" fill-rule="evenodd"
+                d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z">
+              </path>
+            </svg>
+          </button>
+          <a class="flex ms-4 md:me-24">
+            <img src="logo.svg" class="h-10 me-3" alt="Logo" />
+            <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-gray-800 dark:text-white">Study Manager</span>
+          </a>
+        </div>
+        <div class="flex items-center">
+          <div class="flex items-center ms-3">
+            <div class="mr-2">
+              <button
+                class="inline-block text-gray-600 hover:text-gray-900 dark:text-white dark:hover:text-gray-400 text-center h-10 p-2 md:h-auto md:p-4" (click)="toggleThemeMode()">
+                <mat-icon>{{ themeService.themeModeSignal() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+              </button>
+            </div>
+            <div>
+              <button [matMenuTriggerFor]="menu"
+                class="inline-block text-gray-600 hover:text-gray-900 dark:text-white dark:hover:text-gray-400 text-center h-10 p-2 md:h-auto md:p-4"
+                aria-expanded="false" data-dropdown-toggle="dropdown-user">
+                <span class="sr-only">Open user menu</span>
+                <mat-icon class="w-10 h-10 rounded-full">account_circle</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="dados()">
+                  <mat-icon>settings</mat-icon>
+                  <span>Meus dados</span>
+                </button>
+                <button mat-menu-item (click)="logout()">
+                  <mat-icon>logout</mat-icon>
+                  <span>Sair</span>
+                </button>
+              </mat-menu>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Sidebar e Conteúdo Principal -->
+  <div class="flex flex-1 pt-20 bg-white dark:bg-gray-700">
+    <aside id="logo-sidebar"
+      class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform transform -translate-x-full sm:translate-x-0 bg-white dark:bg-gray-800 dark:border-gray-700"
+      aria-label="Sidebar">
+      <div class="h-full px-3 pb-4 pt-4 overflow-y-auto">
+        <ul class="space-y-2 font-medium">
+          <li>
+            <a class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              (click)="progresso()">
+              <span class="flex-1 ms-3 whitespace-nowrap">Meu Progresso</span>
+            </a>
+          </li>
+          <li>
+            <a class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              (click)="disciplinas()">
+              <span class="flex-1 ms-3 whitespace-nowrap">Disciplinas</span>
+              <span
+                class="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300"></span>
+            </a>
+          </li>
+          <li>
+            <a class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              (click)="tarefas()">
+              <span class="flex-1 ms-3 whitespace-nowrap">Tarefas</span>
+              <span
+                class="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300"></span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="flex-1 p-4 sm:ml-64 max-w-screen mx-auto w-full">
+      <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-600 mt-14 flex flex-col">
+        <ng-container *ngIf="escolha === 'disciplinas'; else tarefasTemplate">
+          <disciplinas></disciplinas>
+        </ng-container>
+
+        <ng-template #tarefasTemplate>
+          <ng-container *ngIf="escolha === 'tarefas'; else dadosTemplate">
+            <tarefas></tarefas>
+          </ng-container>
+        </ng-template>
+
+        <ng-template #dadosTemplate>
+          <ng-container *ngIf="escolha === 'dados'; else progressoTemplate">
+            <dados></dados>
+          </ng-container>
+        </ng-template>
+
+        <ng-template #progressoTemplate>
+          <progresso></progresso>
+        </ng-template>
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white rounded-lg shadow m-4 dark:bg-gray-800 w-full max-w-screen-xl mx-auto">
+    <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
+      <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2024 <a href="#"
+          class="hover:underline">Study Manager™</a>. Todos os direitos reservados.
+      </span>
+      <ul class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
+        <li>
+          <a href="" class="hover:underline me-4 md:me-6">Sobre</a>
+        </li>
+        <li>
+          <a href="" class="hover:underline me-4 md:me-6">Política de Privacidade</a>
+        </li>
+        <li>
+          <a href="" class="hover:underline me-4 md:me-6">Licenciamento</a>
+        </li>
+        <li>
+          <a href="" class="hover:underline">Contato</a>
+        </li>
+      </ul>
+    </div>
+  </footer>
+</div>

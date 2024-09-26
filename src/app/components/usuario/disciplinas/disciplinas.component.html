@@ -1,0 +1,23 @@
+<div class="container mx-auto p-4">
+  <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Lista de Disciplinas</h2>
+  <button (click)="openDialog('adicionar')" class="bg-green-500 text-white px-4 py-2 rounded mb-4">Adicionar
+    Disciplina</button>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <mat-card *ngFor="let disciplina of disciplinas"
+      class="cursor-pointer hover:shadow-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+      <mat-card-header>
+        <mat-card-title>{{ disciplina.nome }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{ disciplina.descricao }}</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary"
+          (click)="openDialog('editar', disciplina); $event.stopPropagation()">Editar</button>
+        <button mat-button color="warn" 
+          (click)="removerDisciplina(disciplina.id); $event.stopPropagation()">Remover</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>
