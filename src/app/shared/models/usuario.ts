@@ -7,12 +7,14 @@ export class Usuario {
   public senha: string;
   public disciplinas: Disciplina[];
 
-  constructor(nome: string, email: string, senha: string) {
-    this.id ="0";
+  constructor(id:string,nome: string, email: string, senha: string) {
+    this.id =id;
     this.nome = nome;
     this.email = email;
     this.senha = senha;
     this.disciplinas = [];
   }
+
+
 
 }

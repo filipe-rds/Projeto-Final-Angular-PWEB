@@ -14,6 +14,7 @@ import { DisciplinasComponent } from './components/usuario/disciplinas/disciplin
 import { TarefasComponent } from './components/usuario/tarefas/tarefas.component';
 import { ProgressoComponent } from './components/usuario/progresso/progresso.component';
 import { ModalComponent } from './components/usuario/modal/modal.component';
+import { FirestoreModule } from './firestore/firestore.module';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { ModalComponent } from './components/usuario/modal/modal.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    MaterialModule
+    MaterialModule,
+    FirestoreModule
   ],
   providers: [
     provideAnimationsAsync()

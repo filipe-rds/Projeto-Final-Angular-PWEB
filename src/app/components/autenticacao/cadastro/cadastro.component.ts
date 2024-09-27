@@ -3,6 +3,7 @@ import { ActivatedRoute, Router} from '@angular/router';
 import { UsuarioService } from '../../../shared/services/usuario.service';
 import { Usuario } from '../../../shared/models/usuario';
 import { MensagemSweetService } from '../../../shared/services/mensagem-sweet.service';
+import { UsuarioFirestoreService } from '../../../shared/services/usuario-firestore.service';
 
 @Component({
   selector: 'cadastro',
@@ -10,9 +11,9 @@ import { MensagemSweetService } from '../../../shared/services/mensagem-sweet.se
   styleUrl: './cadastro.component.scss'
 })
 export class CadastroComponent {
-  usuario: Usuario = new Usuario("", "", "");
+  usuario: Usuario = new Usuario("","", "", "");
 
-  constructor(private rotaAtual: ActivatedRoute, private roteador: Router, private usuarioService: UsuarioService, public sweet: MensagemSweetService) { }
+  constructor(private rotaAtual: ActivatedRoute, private roteador: Router, private usuarioService: UsuarioFirestoreService, public sweet: MensagemSweetService) { }
 
   cadastro(): void {
     console.log(this.usuario);
@@ -35,11 +36,11 @@ export class CadastroComponent {
       return this.usuario;
     }, error => {
       this.sweet.info('Erro ao inserir usuário:');
-    }
-    );
-    this.roteador.navigate([`tela-usuario/${this.usuario.id}`]).then(() => {
-      window.location.reload();
     });
+
+    // this.roteador.navigate([`tela-usuario/${this.usuario.id}`]).then(() => {
+    //   window.location.reload();
+    // });
   }
 
 }
