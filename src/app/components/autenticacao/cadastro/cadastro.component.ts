@@ -11,7 +11,7 @@ import { UsuarioFirestoreService } from '../../../shared/services/usuario-firest
   styleUrl: './cadastro.component.scss'
 })
 export class CadastroComponent {
-  usuario: Usuario = new Usuario("","", "", "");
+  usuario: Usuario = new Usuario("", "", "");
 
   constructor(private rotaAtual: ActivatedRoute, private roteador: Router, private usuarioService: UsuarioFirestoreService, public sweet: MensagemSweetService) { }
 
@@ -31,11 +31,14 @@ export class CadastroComponent {
       return;
     }
 
-    this.usuarioService.criarUsuario(this.usuario).subscribe(() => {
-      this.sweet.info("Usuario cadastrado");
-      return this.usuario;
-    }, error => {
-      this.sweet.info('Erro ao inserir usuário:');
+    this.usuarioService.criarUsuario(this.usuario).subscribe({
+      next: () =>{
+        this.sweet.info("Usuario cadastrado");
+        return this.usuario;
+      },
+      error: (err) => {
+      this.sweet.info(`Erro ao inserir usuário: ${err}`);
+      }
     });
 
     // this.roteador.navigate([`tela-usuario/${this.usuario.id}`]).then(() => {
