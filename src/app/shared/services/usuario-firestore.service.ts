@@ -3,6 +3,8 @@ import {from, Observable} from 'rxjs';
 import {Usuario} from '../models/usuario';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/compat/firestore';
 import {map} from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
+
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +26,17 @@ export class UsuarioFirestoreService {
 
   criarUsuario(user: Usuario): Observable<object>{
     
-    return from(this.colecaoUsuarios.add(Object.assign({},user)));
+    return from(this.colecaoUsuarios.add(Object.assign({}, user))).pipe(
+      switchMap((docRef) => {
+        // Atualiza o documento com o id gerado pelo Firebase
+        return docRef.update({ id: docRef.id }).then(() => {
+          // Atualiza o objeto 'user' com o novo id
+          user.id = docRef.id;
+          return user;
+        });
+      })
+    );
+
+
   }
 }
