@@ -1,7 +1,7 @@
 import { Disciplina } from './disciplina';
 
 export class Usuario {
-  public id: string;
+  public id: number;
   public nome: string;
   public email: string;
   public senha: string;
@@ -9,7 +9,7 @@ export class Usuario {
 
 
   constructor(nome: string, email: string, senha: string) {
-    this.id = "";
+    this.id = 0;
     this.nome = nome;
     this.email = email;
     this.senha = senha;

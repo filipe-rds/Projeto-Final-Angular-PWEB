@@ -33,17 +33,20 @@ export class CadastroComponent {
 
     this.usuarioService.criarUsuario(this.usuario).subscribe({
       next: () =>{
-        this.sweet.info("Usuario cadastrado");
+        console.log("Usuario cadastrado");
+        this.usuarioService.login(this.usuario).subscribe({
+          next: () => console.log("login feito com sucesso"),
+          error: (err) => this.sweet.erro("erro ao fazer login:"+err)
+        });
         return this.usuario;
       },
       error: (err) => {
       this.sweet.info(`Erro ao inserir usuário: ${err}`);
       }
     });
-
-    // this.roteador.navigate([`tela-usuario/${this.usuario.id}`]).then(() => {
-    //   window.location.reload();
-    // });
+    this.roteador.navigate([`tela-usuario/${this.usuario.id}`]).then(() => {
+      window.location.reload();
+    });
   }
 
 }

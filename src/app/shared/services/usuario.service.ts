@@ -29,12 +29,14 @@ export class UsuarioService {
 
   // Métodos crud de usuário
 
+  
+
   criarUsuario(usuario: Usuario): Observable<Usuario> {
     //ok
     return this.listarUsuarios().pipe(
       switchMap((UsuariosRetornados) => {
         if (UsuariosRetornados.length === 0) {
-          usuario.id = "1";
+          usuario.id = 1;
           this.localStorageService.armazenarUsuario(usuario);
           return this.httpClient.post<Usuario>(this.url_usuarios, usuario);
         }
@@ -46,7 +48,7 @@ export class UsuarioService {
         let tamanho: number = UsuariosRetornados.length;
         let id: number = Number(UsuariosRetornados[tamanho - 1].id) + 1;
 
-        usuario.id = String(id);
+        // usuario.id = String(id);
 
         if (usuarioExistente) {
           return throwError(

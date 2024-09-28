@@ -3,6 +3,7 @@ import { ActivatedRoute, Router} from '@angular/router';
 import { UsuarioService } from '../../../shared/services/usuario.service';
 import { Usuario } from '../../../shared/models/usuario';
 import { MensagemSweetService } from '../../../shared/services/mensagem-sweet.service';
+import { UsuarioFirestoreService } from '../../../shared/services/usuario-firestore.service';
 
 @Component({
   selector: 'login',
@@ -12,10 +13,10 @@ import { MensagemSweetService } from '../../../shared/services/mensagem-sweet.se
 export class LoginComponent {
   usuario: Usuario = new Usuario("", "", "");
 
-  constructor(private rotaAtual: ActivatedRoute, private roteador: Router, private usuarioService: UsuarioService, public sweet: MensagemSweetService) { }
+  constructor(private rotaAtual: ActivatedRoute, private roteador: Router, private usuarioService: UsuarioFirestoreService, public sweet: MensagemSweetService) { }
 
   login(): void {
-    this.usuarioService.validarUsuario(this.usuario).subscribe({
+    this.usuarioService.login(this.usuario).subscribe({
       next: (usuarioEncontrado) => {
         this.sweet.sucesso('Usuário logado: ' + usuarioEncontrado.nome);
         this.roteador.navigate([`tela-usuario/${usuarioEncontrado.id}`]).then(() => {
