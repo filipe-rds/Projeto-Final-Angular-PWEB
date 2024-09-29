@@ -6,6 +6,7 @@ import { LocalStorageService } from '../../../shared/services/local-storage.serv
 import { UsuarioService } from '../../../shared/services/usuario.service';
 import { MensagemSweetService } from '../../../shared/services/mensagem-sweet.service';
 import { ModalComponent } from '../modal/modal.component';
+import { UsuarioFirestoreService } from '../../../shared/services/usuario-firestore.service';
 
 @Component({
   selector: 'disciplinas',

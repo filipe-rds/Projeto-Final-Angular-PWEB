@@ -95,7 +95,7 @@ export class UsuarioService {
             () => new Error('Já existe um usuário com este e-mail.')
           );
         } else {
-          this.localStorageService.atualizarUsuario(usuario);
+          //(usuario);
           return this.httpClient.patch<Usuario>(
             `${this.url_usuarios}/${usuario.id}`,
             usuario
@@ -163,7 +163,7 @@ export class UsuarioService {
           disciplina.id = id;
 
           usuarioExistente.disciplinas.push(disciplina);
-          this.localStorageService.atualizarUsuario(usuarioExistente);
+          // //(usuarioExistente);
           return this.httpClient.patch<Usuario>(
             `${this.url_usuarios}/${usuarioExistente.id}`,
             usuarioExistente
@@ -208,7 +208,7 @@ export class UsuarioService {
       if (indexdisciplina !== -1) {
         usuario.disciplinas.splice(indexdisciplina, 1);
         console.log(usuario);
-        this.localStorageService.atualizarUsuario(usuario);
+        //(usuario);
         // Lucas, dava pra usar PATCH nessa situação?
         this.httpClient
           .put<Usuario>(`${this.url_usuarios}/${usuario.id}`, usuario)
@@ -253,13 +253,13 @@ export class UsuarioService {
       //   console.log(disciplina);
       //   disciplinaEncontrada = disciplina;
       //   console.log(disciplinaEncontrada);
-      //   this.localStorageService.atualizarUsuario(usuario);
+      //   //(usuario);
       //   this.httpClient.patch<Usuario>(`${this.url_usuarios}/${usuario.id}`, usuario);
       //   return true;
       // }
       if (indiceDisciplina !== -1) {
         usuario.disciplinas[indiceDisciplina] = disciplina;
-        this.localStorageService.atualizarUsuario(usuario);
+        //(usuario);
         this.httpClient
           .patch<Usuario>(`${this.url_usuarios}/${usuario.id}`, usuario)
           .subscribe({
@@ -355,7 +355,7 @@ export class UsuarioService {
         tarefa.id = id;
 
         disciplinaEncontrada.tarefas.push(tarefa);
-        this.localStorageService.atualizarUsuario(usuario);
+        //(usuario);
         this.httpClient
           .patch<Usuario>(`${this.url_usuarios}/${usuario.id}`, usuario)
           .subscribe({
@@ -412,7 +412,7 @@ export class UsuarioService {
           // remove a tarefa do array
 
           disciplinaEncontrada.tarefas.splice(indexTarefa, 1);
-          this.localStorageService.atualizarUsuario(usuario);
+          //(usuario);
           // Lucas, dava pra usar PATCH nessa situação?
           this.httpClient
             .put<Usuario>(`${this.url_usuarios}/${usuario.id}`, usuario)

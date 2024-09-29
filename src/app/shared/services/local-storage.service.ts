@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Usuario } from '../models/usuario';
+import { UsuarioDTO } from '../models/usuarioDTO';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +12,16 @@ export class LocalStorageService {
   armazenarUsuario(usuario: Usuario): void {
     localStorage.setItem(this.usuarioKey, JSON.stringify(usuario));
   }
+  armazenarUsuarioDTO(usuario: UsuarioDTO): void {
+    localStorage.setItem(this.usuarioKey, JSON.stringify(usuario));
+  }
 
   lerUsuario(): Usuario | null {
+    const usuarioData = localStorage.getItem(this.usuarioKey);
+    return usuarioData ? JSON.parse(usuarioData) : null;
+  }
+
+  lerUsuarioDTO(): UsuarioDTO | null {
     const usuarioData = localStorage.getItem(this.usuarioKey);
     return usuarioData ? JSON.parse(usuarioData) : null;
   }
@@ -23,5 +32,10 @@ export class LocalStorageService {
 
   atualizarUsuario(usuario: Usuario): void {
     this.armazenarUsuario(usuario);
+  }
+  
+
+  atualizarUsuarioDTO(usuario: UsuarioDTO): void {
+    this.armazenarUsuarioDTO(usuario);
   }
 }

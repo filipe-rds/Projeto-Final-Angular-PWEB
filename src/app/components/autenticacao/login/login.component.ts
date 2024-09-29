@@ -4,6 +4,8 @@ import { UsuarioService } from '../../../shared/services/usuario.service';
 import { Usuario } from '../../../shared/models/usuario';
 import { MensagemSweetService } from '../../../shared/services/mensagem-sweet.service';
 import { UsuarioFirestoreService } from '../../../shared/services/usuario-firestore.service';
+import {LocalStorageService} from '../../../shared/services/local-storage.service';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'login',
@@ -13,13 +15,14 @@ import { UsuarioFirestoreService } from '../../../shared/services/usuario-firest
 export class LoginComponent {
   usuario: Usuario = new Usuario("", "", "");
 
-  constructor(private rotaAtual: ActivatedRoute, private roteador: Router, private usuarioService: UsuarioFirestoreService, public sweet: MensagemSweetService) { }
+  constructor(private rotaAtual: ActivatedRoute, private roteador: Router, private localStorageService: LocalStorageService, private usuarioService: UsuarioFirestoreService, public sweet: MensagemSweetService) { }
 
   login(): void {
-    this.usuarioService.login(this.usuario).subscribe({
-      next: (usuarioEncontrado) => {
-        this.sweet.sucesso('Usuário logado: ' + usuarioEncontrado.nome);
-        this.roteador.navigate([`tela-usuario/${usuarioEncontrado.id}`]).then(() => {
+     this.usuarioService.login(this.usuario).subscribe({
+      next: () => {
+        this.sweet.sucesso('Usuário logado: ');
+        const r = this.localStorageService.lerUsuarioDTO();
+        this.roteador.navigate([`tela-usuario/${r?.id}`]).then(() => {
           window.location.reload();
         });
       },

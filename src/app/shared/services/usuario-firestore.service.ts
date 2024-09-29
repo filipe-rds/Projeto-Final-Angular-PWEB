@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
-import {from, of,throwError,Observable} from 'rxjs';
+import {from,tap ,of,throwError,Observable} from 'rxjs';
 import {Usuario} from '../models/usuario';
 import { Disciplina } from '../models/disciplina';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/compat/firestore';
 import { switchMap , map , catchError, take } from 'rxjs/operators';
 import {LocalStorageService} from '../services/local-storage.service';
 import { HttpClient } from '@angular/common/http';
+import { UsuarioDTO } from '../models/usuarioDTO';
+import { Action } from 'rxjs/internal/scheduler/Action';
 
 
 @Injectable({
@@ -13,7 +15,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class UsuarioFirestoreService {
 
-  colecaoUsuarios: AngularFirestoreCollection<Usuario>;
+  colecaoUsuarios: AngularFirestoreCollection<UsuarioDTO>;
   NOME_COLECAO = 'usuarios';
   API ="http://localhost:8080/usuarios";
 
@@ -26,49 +28,127 @@ export class UsuarioFirestoreService {
   //   return this.colecaoUsuarios.valueChanges({idField: 'id'}); 
   // }
 
-  validarUsuario(usuario: Usuario): Observable<any>{
-    console.log('ID do usuário:', usuario.id);
-    console.log(typeof usuario.id);
-    const user = usuario;
-    console.log(user);
-    if(user){
-      return this.afs.collection('usuarios',ref =>ref.where('id','==',user.id)).valueChanges().pipe(
-        map(users =>{
-          console.log(users[0]);
-          if(users) 
-            return users[0];
-          else 
-            return null;
-        })
-      );
-    }else{
-      return throwError(() => new Error('sei n'));
-    }
+  validarUsuario(usuario: UsuarioDTO): Observable<UsuarioDTO | null> {
+    //console.log("Validando usuário com ID:", usuario.idField); // Adicione este log
+    return this.colecaoUsuarios.doc(usuario.idField).get().pipe(
+      map(snapshot => {
+        if (snapshot.exists) {
+          return { idField: snapshot.id, ...snapshot.data() } as UsuarioDTO;
+        } else {
+          return null;
+        }
+      }),
+      catchError(err => {
+        console.error("Erro ao validar usuário:", err); // Adicione log de erro
+        return throwError(() => new Error('Erro ao validar usuário'));
+      })
+    );
   }
-
-    criarUsuario(usuario:Usuario): Observable<Usuario>{
-      return this.httpClient.post<Usuario>(this.API,usuario).pipe(
-        switchMap(usuarioAdicionado =>{
-          const usuarioParaFirestore: Usuario = {
-            ...usuarioAdicionado,
-            senha: '',  // ou deixar vazio ou fazer um DTO para usuario sem a senha
-            disciplinas: usuario.disciplinas // Inicializa como um array vazio
-          };
   
-          return from(this.colecaoUsuarios.add(usuarioParaFirestore)).pipe(
-            map(() => usuarioAdicionado),
-            catchError(err => {return throwError(err)})
-          );       
-          // return this.login(usuario);
-        }),
-        catchError(err => {
-          return throwError(err);
-        })   
-      );
+
+  criarUsuarioPostgres(usuario:Usuario):Observable<Usuario>{
+    return this.httpClient.post<Usuario>(this.API,usuario);
+  }
+  criarUsuarioFirestore(usuario: Usuario){
+    const dto = new UsuarioDTO(usuario.id.toString(),usuario.disciplinas);
+
+    if (!dto.disciplinas) {
+      dto.disciplinas = []; // Inicializa como um array vazio se for indefinido
     }
+
+    console.log('Tentando adicionar o usuário ao Firestore:', dto);
+
+    const usuarioData = {
+      id: dto.id,
+      disciplinas: dto.disciplinas,
+      idField: ''
+    };
+
+    return from(this.colecaoUsuarios.add(usuarioData)).pipe(
+      switchMap(docRef => {
+        const docId = docRef.id;
+        dto.idField = docId;
+  
+        return from(this.colecaoUsuarios.doc(docId).update({
+          idField: dto.idField 
+        })).pipe(
+          map(() => {
+            this.localStorageService.armazenarUsuarioDTO(dto);
+            //console.log('ID do usuário atualizado no Firestore com sucesso.');
+            return docId; // Opcional: Retorna o id gerado, se necessário
+          })
+        );
+      }),catchError(err => { 
+        console.error('Erro ao adicionar usuário ao Firestore:', err);
+        return throwError(() => new Error('erro'+ err))
+      })
+    );
+  }
+  criarUsuario(usuario: Usuario): Observable<any> {
+    console.log('Iniciando criação do usuário:', usuario);
+    return this.criarUsuarioPostgres(usuario).pipe(
+      tap(usuarioCriado => console.log('Usuário criado no Postgres:', usuarioCriado)),
+      switchMap(usuarioCriado => {
+        return this.criarUsuarioFirestore(usuarioCriado).pipe(
+          tap(idFirestore => console.log('Usuário criado no Firestore com id:', idFirestore)),
+          map(idFirestore => {
+            console.log("2");
+            console.log('Usuário criado com sucesso no Firestore com id:', idFirestore);
+            return usuarioCriado; // Retorna o usuário criado
+          })
+        )
+  }),
+      catchError(err => {
+        console.error('Erro ao criar usuário:', err);
+        return throwError(() => new Error('Erro ao criar usuário no Postgres ou Firestore :'+ err));
+      })
+    );
+  }
+  
+
+    // criarUsuario(usuario:Usuario): Observable<Usuario>{
+    //   return this.httpClient.post<Usuario>(this.API,usuario).pipe(
+    //     switchMap(usuarioAdicionado =>{
+    //       const usuarioParaFirestore: Usuario = {
+    //         ...usuarioAdicionado,
+    //         senha: '',  // ou deixar vazio ou fazer um DTO para usuario sem a senha
+    //         disciplinas: usuario.disciplinas // Inicializa como um array vazio
+    //       };
+  
+    //       return from(this.colecaoUsuarios.add(usuarioParaFirestore)).pipe(
+    //         map(() => usuarioAdicionado),
+    //         catchError(err => {return throwError(err)})
+    //       );       
+    //       // return this.login(usuario);
+    //     }),
+    //     catchError(err => {
+    //       return throwError(err);
+    //     })   
+    //   );
+    // }
 
     public listar(): Observable<Usuario[]>{
       return this.httpClient.get<Usuario[]>(this.API);
+    }
+
+    public getIdField(usuario: Usuario):Observable<string>{
+      // console.log("Buscando ID para o usuário com ID:", usuario.id);
+      // console.log(typeof usuario.id);
+      return this.afs.collection('usuarios',ref =>ref.where('id','==',usuario.id.toString())).snapshotChanges().pipe(
+        take(1),
+        switchMap(actions => {
+          // console.log("Resultados da consulta:", actions);
+          if(actions.length > 0){
+            const docId =actions[0].payload.doc.id;
+            //console.log("ID encontrado:", docId);
+            return of(docId);
+          } else{
+            return throwError(() => new Error('Usuario não encontrado '));
+          }
+        }), catchError(err => {
+          return throwError(() =>new Error('erro:'+ err));
+        })
+      )
     }
 
     public alterarFirestore(usuario:Usuario): Observable<any>{
@@ -108,35 +188,58 @@ export class UsuarioFirestoreService {
   
     
     public alterarUsuario(usuario: Usuario): Observable<any>{
-      console.log(usuario);
        return this.httpClient.put<Usuario>(this.API + "/" + usuario.id, usuario);    
     }
 
-    login(usuario: Usuario): Observable<Usuario> {
+    login(usuario: Usuario): Observable<any> {
       return this.httpClient.post<Usuario>(this.API + "/login", usuario).pipe(
-        map((usuarioRetornado) => {
-          const u = new Usuario(usuarioRetornado.nome, usuarioRetornado.email, "");
-          u.id = usuarioRetornado.id;
-          if (!u || !u.id) {
-            throw new Error("Usuário ou id do usuário nulo");
-          }
-          return u; // Retorna o usuário
-        }),
-        switchMap((u: Usuario) => this.validarUsuario(u).pipe(
-          switchMap(usuarioValidado => {
-            if (usuarioValidado) {
-              // Adiciona o usuário ao Local Storage
-              this.localStorageService.armazenarUsuario(usuarioValidado);
-              return of(usuarioValidado); // Retorna o usuário validado
-            } else {
-              throw new Error("Usuário não encontrado no Firestore");
-            }
+        switchMap((usuarioRetornado: Usuario) => {
+          //console.log("Usuário retornado do backend:", usuarioRetornado);
+          const u = new UsuarioDTO(usuarioRetornado.id.toString(),usuario.disciplinas);
+          return this.getIdField(usuarioRetornado).pipe(
+            map(idField =>{
+              u.idField = idField;
+              return u; // Retorna o usuário
+            })
+          )
+        }),        
+        //valida se o usuario existe no firestore
+        switchMap((u:UsuarioDTO) => {
+          //console.log(u);
+          //console.log("Antes de validar usuário, ID:", u.idField);
+          return this.validarUsuario(u).pipe(
+            map((usuarioValidado: UsuarioDTO | null) => {
+              if(usuarioValidado){
+                this.localStorageService.armazenarUsuarioDTO(usuarioValidado);
+                return usuarioValidado;
+              }else{
+                return throwError(() => new Error('Usuario não encontrado no Firestore'))
+              }
+            })
+          );
+        }),catchError(err => {
+          console.error("Erro ao fazer login:", err);
+          return throwError(() => new Error('Erro ao fazer login'));
           })
-        )),
-        catchError(err => {
-          return throwError(err);
-        })
       );
+    }
+
+    // criarDisciplina(disciplina:Disciplina):Observable<any>{
+
+    // }
+
+    listarDisciplinas(): Disciplina[] {
+      let usuario: Usuario | null = this.localStorageService.lerUsuario();
+  
+      if (usuario == null) {
+        throw new Error('Usuário não encontrado');
+      }
+  
+      if (usuario && usuario.disciplinas.length >= 0) {
+        return usuario.disciplinas;
+      } else {
+        throw new Error('Usuário não possui nenhuma disicplina cadastrada');
+      }
     }
 
 }

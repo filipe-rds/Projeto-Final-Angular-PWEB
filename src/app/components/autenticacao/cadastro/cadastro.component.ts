@@ -4,6 +4,7 @@ import { UsuarioService } from '../../../shared/services/usuario.service';
 import { Usuario } from '../../../shared/models/usuario';
 import { MensagemSweetService } from '../../../shared/services/mensagem-sweet.service';
 import { UsuarioFirestoreService } from '../../../shared/services/usuario-firestore.service';
+import { LocalStorageService } from '../../../shared/services/local-storage.service';
 
 @Component({
   selector: 'cadastro',
@@ -13,11 +14,12 @@ import { UsuarioFirestoreService } from '../../../shared/services/usuario-firest
 export class CadastroComponent {
   usuario: Usuario = new Usuario("", "", "");
 
-  constructor(private rotaAtual: ActivatedRoute, private roteador: Router, private usuarioService: UsuarioFirestoreService, public sweet: MensagemSweetService) { }
+  constructor(private rotaAtual: ActivatedRoute, private roteador: Router, private usuarioService: UsuarioFirestoreService,private localStorageService: LocalStorageService ,public sweet: MensagemSweetService) { }
+
+
 
   cadastro(): void {
-    console.log(this.usuario);
-
+  
     if (this.usuario.nome.length <= 0) {
       this.sweet.info('Nome não pode estar vazio');
       return;
@@ -31,11 +33,19 @@ export class CadastroComponent {
       return;
     }
 
+    console.log(this.usuario);
     this.usuarioService.criarUsuario(this.usuario).subscribe({
       next: () =>{
         console.log("Usuario cadastrado");
         this.usuarioService.login(this.usuario).subscribe({
-          next: () => console.log("login feito com sucesso"),
+          next: () => {
+            console.log("login feito com sucesso")
+            const dto = this.localStorageService.lerUsuarioDTO();
+            console.log(dto?.id);
+            this.roteador.navigate([`tela-usuario/${dto?.id}`]).then(() => {
+              window.location.reload();
+            });
+          },
           error: (err) => this.sweet.erro("erro ao fazer login:"+err)
         });
         return this.usuario;
@@ -44,9 +54,7 @@ export class CadastroComponent {
       this.sweet.info(`Erro ao inserir usuário: ${err}`);
       }
     });
-    this.roteador.navigate([`tela-usuario/${this.usuario.id}`]).then(() => {
-      window.location.reload();
-    });
+   
   }
 
 }
