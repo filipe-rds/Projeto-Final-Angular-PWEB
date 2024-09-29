@@ -5,6 +5,7 @@ import { LocalStorageService } from '../../../shared/services/local-storage.serv
 import { UsuarioService } from '../../../shared/services/usuario.service';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MensagemSweetService } from '../../../shared/services/mensagem-sweet.service';
+import { UsuarioFirestoreService } from '../../../shared/services/usuario-firestore.service';
 
 @Component({
   selector: 'dados',
@@ -19,7 +20,7 @@ export class DadosComponent implements OnInit {
     private rotaAtual: ActivatedRoute,
     private roteador: Router,
     private localStorageService: LocalStorageService,
-    private usuarioService: UsuarioService,
+    private usuarioService: UsuarioFirestoreService,
     private fb: FormBuilder,
     public sweet: MensagemSweetService
   ) {}
@@ -55,15 +56,20 @@ export class DadosComponent implements OnInit {
       disciplinas: this.usuario?.disciplinas || [], // preserva as disciplinas
     };
 
-    this.usuarioService.alterarUsuario(usuarioAtualizado).subscribe(
-      () => {
-        this.localStorageService.atualizarUsuario(usuarioAtualizado); // Atualiza o local storage
+    this.usuarioService.alterarUsuario(usuarioAtualizado).subscribe({
+      next: () => {
+        this.usuarioService.alterarFirestore(usuarioAtualizado).subscribe({
+          next: (msg) =>{console.log(msg)},
+          error: (err) =>{console.log(err)}
+        })
+        this.localStorageService.atualizarUsuario(usuarioAtualizado);
         this.sweet.sucesso('Dados salvos com sucesso');
         this.roteador.navigate([`tela-usuario/${usuarioAtualizado.id}`]);
       },
-      (error) => {
-        this.sweet.erro('Erro ao alterar o usuário');
+      error: (err) => {
+        this.sweet.erro('Erro ao alterar o usuário:'+err);
       }
+    }
     );
   }
 

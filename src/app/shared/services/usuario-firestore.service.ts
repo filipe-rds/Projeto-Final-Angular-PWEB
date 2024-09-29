@@ -3,7 +3,7 @@ import {from, of,throwError,Observable} from 'rxjs';
 import {Usuario} from '../models/usuario';
 import { Disciplina } from '../models/disciplina';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/compat/firestore';
-import { switchMap , map , catchError } from 'rxjs/operators';
+import { switchMap , map , catchError, take } from 'rxjs/operators';
 import {LocalStorageService} from '../services/local-storage.service';
 import { HttpClient } from '@angular/common/http';
 
@@ -70,9 +70,46 @@ export class UsuarioFirestoreService {
     public listar(): Observable<Usuario[]>{
       return this.httpClient.get<Usuario[]>(this.API);
     }
+
+    public alterarFirestore(usuario:Usuario): Observable<any>{
+      console.log(usuario);
+      return this.afs.collection('usuarios',ref =>ref.where('id','==',usuario.id)).snapshotChanges().pipe(
+        take(1),
+        switchMap(actions => {
+          if(actions.length > 0){
+            const docId =actions[0].payload.doc.id;
+
+            return from(this.afs.collection('usuarios').doc(docId).update({
+              nome: usuario.nome,
+              email: usuario.email,
+              disciplinas: usuario.disciplinas
+              // outros campos que você deseja atualizar
+            }))
+          } 
+          else{
+            return throwError(() => new Error('Usuario não encontrado '));
+          }
+        }), catchError(err => {
+          return throwError('erro: '+ err);
+        })
+      )
+      // return from(this.colecaoUsuarios.doc(usuario.id.toString()).update({
+      //   id: usuario.id,
+      //   nome: usuario.nome,
+      //   email: usuario.email,
+      //   senha: usuario.senha,
+      //   disciplinas: usuario.disciplinas
+      // }).then(() => {
+      //   return 'Usuário atualizado com sucesso!';
+      // }).catch(err =>{
+      //   return `Erro ao atualizar o usuario: ${err}`;
+      // }))
+    }
+  
     
-    public atualizar(id : number, usuario: Usuario): Observable<Usuario>{
-      return this.httpClient.put<Usuario>(this.API + "/" + id, usuario);
+    public alterarUsuario(usuario: Usuario): Observable<any>{
+      console.log(usuario);
+       return this.httpClient.put<Usuario>(this.API + "/" + usuario.id, usuario);    
     }
 
     login(usuario: Usuario): Observable<Usuario> {
