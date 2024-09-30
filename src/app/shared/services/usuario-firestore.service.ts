@@ -5,7 +5,7 @@ import { Disciplina } from '../models/disciplina';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/compat/firestore';
 import { switchMap , map , catchError, take } from 'rxjs/operators';
 import {LocalStorageService} from '../services/local-storage.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { UsuarioDTO } from '../models/usuarioDTO';
 import { Action } from 'rxjs/internal/scheduler/Action';
 import { Tarefa } from '../models/tarefa';
@@ -286,7 +286,7 @@ export class UsuarioFirestoreService {
     
             return this.alterarFirestore(usuarioValidado).pipe(
               map(() => {
-                // this.localStorageService.armazenarUsuarioDTO(usuarioValidado); // Atualiza o Local Storage aqui
+                this.localStorageService.armazenarUsuarioDTO(usuarioValidado); // Atualiza o Local Storage aqui
                 return usuarioValidado; // Retorna o usuário atualizado
               }),
               catchError(err => {
@@ -301,8 +301,44 @@ export class UsuarioFirestoreService {
 
 
     
-    alterarDisciplina(){
+    alterarDisciplina(disciplina: Disciplina){
+      if (disciplina.nome.length <= 0) {
+        throw new Error('Nome da disciplina não pode ser vazio');
+      }
+      if (disciplina.descricao.length <= 0) {
+        throw new Error('Descrição da disciplina não pode ser vazia');
+      }
+  
+      let usuario: UsuarioDTO | null = this.localStorageService.lerUsuarioDTO();
+  
+      if (usuario == null) {
+        throw new Error('Usuário não encontrado');
+      }
 
+        if(usuario && usuario.disciplinas.length > 0){
+          const indiceDisciplina = usuario.disciplinas.findIndex(
+            (element) => element.id == disciplina.id
+          );
+          console.log(indiceDisciplina);
+
+          if(indiceDisciplina !== -1){
+            console.log(usuario.disciplinas[indiceDisciplina]);
+            usuario.disciplinas[indiceDisciplina] = disciplina;
+            console.log(usuario.disciplinas[indiceDisciplina]);
+            return this.alterarFirestore(usuario).pipe(
+              map(() => {
+                console.log(usuario);
+                this.localStorageService.atualizarUsuarioDTO(usuario);
+                console.log("Local Storage atualizado:", this.localStorageService.lerUsuarioDTO());
+                return usuario;
+              }),catchError(() => throwError(() => new Error('erro ao editar disciplina')))
+            )
+          }else{
+            throw new Error('Disciplina não encontrada');
+          }
+        }else{
+          throw new Error('Usuário não possui nenhuma disicplina cadastrada');
+        }
     }
 
     removerDisciplina(idDisciplina: number){
@@ -319,13 +355,11 @@ export class UsuarioFirestoreService {
 
       if (indexdisciplina !== -1) {
         usuario.disciplinas.splice(indexdisciplina, 1);
-        //console.log("Disciplina removida:", usuario.disciplinas);
-        //(usuario);
-        // Lucas, dava pra usar PATCH nessa situação?
+
         return this.alterarFirestore(usuario).pipe(
           map(() =>{
             console.log(usuario);
-            this.localStorageService.armazenarUsuarioDTO(usuario);
+            this.localStorageService.atualizarUsuarioDTO(usuario);
             console.log("Local Storage atualizado:", this.localStorageService.lerUsuarioDTO());
             return usuario;
           }),
@@ -349,7 +383,7 @@ export class UsuarioFirestoreService {
         throw new Error('Usuário não encontrado');
       }
   
-      if (usuario && usuario.disciplinas.length > 0) {
+      if (usuario && usuario.disciplinas.length >= 0) {
         return usuario.disciplinas;
       } else {
         throw new Error('Usuário não possui nenhuma disicplina cadastrada');

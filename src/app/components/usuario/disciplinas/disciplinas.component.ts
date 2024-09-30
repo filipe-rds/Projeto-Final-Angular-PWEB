@@ -30,7 +30,7 @@ export class DisciplinasComponent implements OnInit {
     this.usuario = this.localStorageService.lerUsuarioDTO();
     if (this.usuario) {
       try {
-        this.atualizar();
+        //this.atualizar();
         this.disciplinas = this.fireService.listarDisciplinas(); // Carrega as disciplinas do usuário
       } catch (err) {
         this.sweet.erro('Erro ao carregar disciplinas: ');
@@ -85,37 +85,60 @@ export class DisciplinasComponent implements OnInit {
   }
 
   //metodo onde era para atualizar o localStorage com o firestore
-  atualizar(){
-    this.fireService.atualizar();
-  }
+  // atualizar(){
+  //   this.fireService.atualizar();
+  // }
 
   editarDisciplina(disciplina: Disciplina): void {
     if (!disciplina.nome || !disciplina.descricao) {
       this.sweet.erro('Por favor, preencha todos os campos obrigatórios');
       return;
     }
-
-    try {
-      const sucesso = this.usuarioService.alterarDisciplina(disciplina);
-      if (sucesso) {
-        this.disciplinas = this.usuarioService.listarDisciplinas();
-        this.sweet.sucesso('Disciplina atualizada com sucesso');
+    this.fireService.alterarDisciplina(disciplina).subscribe({
+      next: (usuarioAtualizado: UsuarioDTO) =>{
+        this.disciplinas =usuarioAtualizado.disciplinas;
+        this.sweet.sucesso('disciplina editada com sucesso');
+      },
+      error: (err) =>{
+        console.log(err);
+        this.sweet.erro('Erro ao editar a disciplina');
       }
-    } catch (err) {
-      this.sweet.erro('Erro ao atualizar a disciplina');
-    }
+    })
+
+    // try {
+    //   const sucesso = this.usuarioService.alterarDisciplina(disciplina);
+    //   if (sucesso) {
+    //     this.disciplinas = this.fireService.listarDisciplinas();
+    //     this.sweet.sucesso('Disciplina atualizada com sucesso');
+    //   }
+    // } catch (err) {
+    //   this.sweet.erro('Erro ao atualizar a disciplina'+err);
+    // }
   }
 
   removerDisciplina(id: number): void {
-    try {
-      const sucesso = this.fireService.removerDisciplina(id);
-      if (sucesso) {
-        this.atualizar();
-        this.disciplinas = this.fireService.listarDisciplinas();
-        this.sweet.sucesso('Disciplina removida com sucesso');
+
+    this.fireService.removerDisciplina(id).subscribe({
+      next: (usuarioAtualizado: UsuarioDTO) => {
+        this.disciplinas =usuarioAtualizado.disciplinas;
+        this.sweet.sucesso('disciplina removida com sucesso');
+      },
+      error: (err) => {
+        console.log(err.message);
+        this.sweet.erro('erro ao remover disciplina');
       }
-    } catch (err) {
-      this.sweet.erro('Erro ao remover a disciplina');
-    }
-  }
+    })
+  //   try {
+  //     const sucesso = this.fireService.removerDisciplina(id);
+  //     if (sucesso) {
+  //       this.atualizar();
+  //       this.disciplinas = this.fireService.listarDisciplinas();
+  //       this.sweet.sucesso('Disciplina removida com sucesso');
+  //     }
+  //   } catch (err) {
+  //     this.sweet.erro('Erro ao remover a disciplina');
+  //   }
+   }
+
+
 }
