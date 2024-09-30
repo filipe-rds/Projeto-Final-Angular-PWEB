@@ -8,6 +8,7 @@ import {LocalStorageService} from '../services/local-storage.service';
 import { HttpClient } from '@angular/common/http';
 import { UsuarioDTO } from '../models/usuarioDTO';
 import { Action } from 'rxjs/internal/scheduler/Action';
+import { Tarefa } from '../models/tarefa';
 
 
 @Injectable({
@@ -151,39 +152,25 @@ export class UsuarioFirestoreService {
       )
     }
 
-    public alterarFirestore(usuario:Usuario): Observable<any>{
-      console.log(usuario);
-      return this.afs.collection('usuarios',ref =>ref.where('id','==',usuario.id)).snapshotChanges().pipe(
-        take(1),
-        switchMap(actions => {
-          if(actions.length > 0){
-            const docId =actions[0].payload.doc.id;
+    public alterarFirestore(usuario:UsuarioDTO): Observable<any>{
+      // console.log("::::");
+      // console.log(usuario);
 
-            return from(this.afs.collection('usuarios').doc(docId).update({
-              nome: usuario.nome,
-              email: usuario.email,
-              disciplinas: usuario.disciplinas
-              // outros campos que você deseja atualizar
-            }))
-          } 
-          else{
-            return throwError(() => new Error('Usuario não encontrado '));
-          }
-        }), catchError(err => {
-          return throwError('erro: '+ err);
-        })
-      )
-      // return from(this.colecaoUsuarios.doc(usuario.id.toString()).update({
-      //   id: usuario.id,
-      //   nome: usuario.nome,
-      //   email: usuario.email,
-      //   senha: usuario.senha,
-      //   disciplinas: usuario.disciplinas
-      // }).then(() => {
-      //   return 'Usuário atualizado com sucesso!';
-      // }).catch(err =>{
-      //   return `Erro ao atualizar o usuario: ${err}`;
-      // }))
+      if (!usuario.idField) {
+        console.error("idField não é válido:", usuario.idField);
+        return throwError(() => new Error('idField não pode ser vazio'));
+      }
+
+            return from(this.colecaoUsuarios.doc(usuario.idField).set({
+              id:usuario.id,
+              idField:usuario.idField,
+              disciplinas: usuario.disciplinas.map(this.serializeDisciplina)
+            })).pipe(
+              catchError(err => {
+                console.error("Erro ao atualizar usuário no Firestore:", err);
+                return throwError(() => new Error('Erro ao atualizar usuário'+err.message));
+              })
+            );
     }
   
     
@@ -224,18 +211,145 @@ export class UsuarioFirestoreService {
       );
     }
 
-    // criarDisciplina(disciplina:Disciplina):Observable<any>{
-
+    //  serializeTarefa(tarefa: Tarefa): {id: number,nome:string,descricao:string} {
+    //   return {
+    //     id: tarefa.id,
+    //     nome: tarefa.nome,
+    //     descricao: tarefa.descricao,
+    //   };
     // }
 
-    listarDisciplinas(): Disciplina[] {
-      let usuario: Usuario | null = this.localStorageService.lerUsuario();
+    serializeDisciplina(disciplina: Disciplina): {id: number; nome: string; descricao: string; tarefas:[]} {
+      return {
+        id: disciplina.id,
+        nome: disciplina.nome,
+        descricao: disciplina.descricao,
+        tarefas: []
+      };
+    }
+
+    atualizar(): Observable<any> {
+
+      // Lê o UsuarioDTO do Local Storage
+      const usuarioDTO = this.localStorageService.lerUsuarioDTO();
   
+      // Verifica se o UsuarioDTO existe e se o idField é válido
+      if (!usuarioDTO || !usuarioDTO.idField) {
+          throw new Error('Usuário não encontrado ou idField inválido');
+      }
+  
+      // Busca o documento correspondente no Firestore usando idField
+      return this.colecaoUsuarios.doc(usuarioDTO.idField).get().pipe(
+          map(snapshot => {
+              if (snapshot.exists) {
+                  // Se o documento existe, obtém os dados
+                  const usuarioFirestore = { idField: snapshot.id, ...snapshot.data() } as UsuarioDTO;
+  
+                  // Atualiza o Local Storage com os dados do Firestore
+                  this.localStorageService.armazenarUsuarioDTO(usuarioFirestore);
+                  return usuarioFirestore; // Retorna o usuário atualizado
+              } else {
+                  throw new Error('Documento não encontrado no Firestore');
+              }
+          }),
+          catchError(err => {
+              console.error("Erro ao atualizar usuário:", err);
+              return throwError(() => new Error('Erro ao atualizar usuário no Firestore'));
+          })
+      );
+  }
+  
+
+    criarDisciplina(disciplina: Disciplina): Observable<any> {
+      let usuario: UsuarioDTO | null = this.localStorageService.lerUsuarioDTO();
+    
+      if (usuario == null) {
+        throw new Error('Usuário não encontrado');
+      }
+    
+      return this.validarUsuario(usuario).pipe(
+        switchMap(usuarioValidado => { // Mudei de map para switchMap
+          if (!usuarioValidado) {
+            return throwError(() => new Error("Usuário não existe"));
+          } else {
+            let tamanho: number = usuarioValidado.disciplinas.length;
+            let id: number;
+    
+            if (tamanho > 0) {
+              id = Number(usuarioValidado.disciplinas[tamanho - 1].id) + 1;
+            } else {
+              id = 1;
+            }
+    
+            disciplina.id = id;
+            usuarioValidado.disciplinas.push(disciplina);
+    
+            return this.alterarFirestore(usuarioValidado).pipe(
+              map(() => {
+                // this.localStorageService.armazenarUsuarioDTO(usuarioValidado); // Atualiza o Local Storage aqui
+                return usuarioValidado; // Retorna o usuário atualizado
+              }),
+              catchError(err => {
+                console.error("Erro ao atualizar disciplinas no Firestore:", err);
+                return throwError(() => new Error("Erro ao atualizar disciplinas"));
+              })
+            );
+          }
+        })
+      );
+    }
+
+
+    
+    alterarDisciplina(){
+
+    }
+
+    removerDisciplina(idDisciplina: number){
+      let usuario: UsuarioDTO | null = this.localStorageService.lerUsuarioDTO();
+
+    if (usuario == null) {
+      throw new Error('Usuário não encontrado');
+    }
+
+    if (usuario && usuario.disciplinas.length > 0) {
+      let indexdisciplina = usuario.disciplinas.findIndex(
+        (element) => element.id == idDisciplina
+      );
+
+      if (indexdisciplina !== -1) {
+        usuario.disciplinas.splice(indexdisciplina, 1);
+        //console.log("Disciplina removida:", usuario.disciplinas);
+        //(usuario);
+        // Lucas, dava pra usar PATCH nessa situação?
+        return this.alterarFirestore(usuario).pipe(
+          map(() =>{
+            console.log(usuario);
+            this.localStorageService.armazenarUsuarioDTO(usuario);
+            console.log("Local Storage atualizado:", this.localStorageService.lerUsuarioDTO());
+            return usuario;
+          }),
+          catchError(err => {
+            console.error("Erro ao atualizar disciplinas no Firestore:", err);
+            return throwError(() => new Error("Erro ao atualizar disciplinas"));
+          })
+        );
+      } else {
+        throw new Error('Disciplina não encontrada');
+      }
+    } else {
+      throw new Error('Usuário não possui nenhuma disicplina cadastrada');
+    }
+  }
+
+    listarDisciplinas(): Disciplina[] {
+      let usuario: UsuarioDTO | null = this.localStorageService.lerUsuarioDTO();
+
       if (usuario == null) {
         throw new Error('Usuário não encontrado');
       }
   
-      if (usuario && usuario.disciplinas.length >= 0) {
+      if (usuario && usuario.disciplinas.length > 0) {
         return usuario.disciplinas;
       } else {
         throw new Error('Usuário não possui nenhuma disicplina cadastrada');

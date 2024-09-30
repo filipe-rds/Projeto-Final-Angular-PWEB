@@ -2,7 +2,7 @@ import { Disciplina } from "./disciplina";
 
 export class Tarefa {
   public id: number;
-  public disciplina!: Disciplina;
+  // public disciplina!: Disciplina;
   public nome: string;
   public descricao: string;
 

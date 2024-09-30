@@ -7,6 +7,7 @@ import { UsuarioService } from '../../../shared/services/usuario.service';
 import { MensagemSweetService } from '../../../shared/services/mensagem-sweet.service';
 import { ModalComponent } from '../modal/modal.component';
 import { UsuarioFirestoreService } from '../../../shared/services/usuario-firestore.service';
+import { UsuarioDTO } from '../../../shared/models/usuarioDTO';
 
 @Component({
   selector: 'disciplinas',
@@ -14,21 +15,23 @@ import { UsuarioFirestoreService } from '../../../shared/services/usuario-firest
   styleUrls: ['./disciplinas.component.scss'],
 })
 export class DisciplinasComponent implements OnInit {
-  usuario!: Usuario | null;
+  usuario!: UsuarioDTO | null;
   disciplinas: Disciplina[] = [];
 
   constructor(
     private dialog: MatDialog,
     private localStorageService: LocalStorageService,
     private usuarioService: UsuarioService,
-    public sweet: MensagemSweetService
+    public sweet: MensagemSweetService,
+    private fireService:UsuarioFirestoreService
   ) {}
 
   ngOnInit(): void {
-    this.usuario = this.localStorageService.lerUsuario();
+    this.usuario = this.localStorageService.lerUsuarioDTO();
     if (this.usuario) {
       try {
-        this.disciplinas = this.usuarioService.listarDisciplinas(); // Carrega as disciplinas do usuário
+        this.atualizar();
+        this.disciplinas = this.fireService.listarDisciplinas(); // Carrega as disciplinas do usuário
       } catch (err) {
         this.sweet.erro('Erro ao carregar disciplinas: ');
       }
@@ -69,14 +72,21 @@ export class DisciplinasComponent implements OnInit {
       return;
     }
     disciplina.tarefas =[];
-    this.usuarioService.criarDisciplina(disciplina).subscribe({
-      next: (usuarioAtualizado) => {
+    this.fireService.criarDisciplina(disciplina).subscribe({
+      next: (usuarioAtualizado: UsuarioDTO) => {
         this.disciplinas = usuarioAtualizado.disciplinas;
         this.sweet.sucesso('Disciplina criada com sucesso');
       },
-      error: (err) =>
-        this.sweet.erro('Erro ao criar a disciplina'),
+      error: (err) =>{
+        console.log(err);
+        this.sweet.erro('Erro ao criar a disciplina: '+err.message)
+      }
     });
+  }
+
+  //metodo onde era para atualizar o localStorage com o firestore
+  atualizar(){
+    this.fireService.atualizar();
   }
 
   editarDisciplina(disciplina: Disciplina): void {
@@ -98,9 +108,10 @@ export class DisciplinasComponent implements OnInit {
 
   removerDisciplina(id: number): void {
     try {
-      const sucesso = this.usuarioService.removerDisciplina(id);
+      const sucesso = this.fireService.removerDisciplina(id);
       if (sucesso) {
-        this.disciplinas = this.usuarioService.listarDisciplinas();
+        this.atualizar();
+        this.disciplinas = this.fireService.listarDisciplinas();
         this.sweet.sucesso('Disciplina removida com sucesso');
       }
     } catch (err) {

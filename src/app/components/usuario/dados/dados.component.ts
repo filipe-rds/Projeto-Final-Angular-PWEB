@@ -58,11 +58,6 @@ export class DadosComponent implements OnInit {
 
     this.usuarioService.alterarUsuario(usuarioAtualizado).subscribe({
       next: () => {
-        this.usuarioService.alterarFirestore(usuarioAtualizado).subscribe({
-          next: (msg) =>{console.log(msg)},
-          error: (err) =>{console.log(err)}
-        })
-        this.localStorageService.atualizarUsuario(usuarioAtualizado);
         this.sweet.sucesso('Dados salvos com sucesso');
         this.roteador.navigate([`tela-usuario/${usuarioAtualizado.id}`]);
       },
