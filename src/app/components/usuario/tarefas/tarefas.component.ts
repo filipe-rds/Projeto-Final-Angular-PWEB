@@ -6,6 +6,7 @@ import { LocalStorageService } from '../../../shared/services/local-storage.serv
 import { UsuarioService } from '../../../shared/services/usuario.service';
 import { MensagemSweetService } from '../../../shared/services/mensagem-sweet.service';
 import { ModalComponent } from '../modal/modal.component';
+import { UsuarioFirestoreService } from '../../../shared/services/usuario-firestore.service';
 
 @Component({
   selector: 'tarefas',
@@ -21,11 +22,12 @@ export class TarefasComponent implements OnInit {
     private dialog: MatDialog,
     private localStorageService: LocalStorageService,
     private usuarioService: UsuarioService,
-    public sweet: MensagemSweetService
+    public sweet: MensagemSweetService,
+    private fireService: UsuarioFirestoreService
   ) {}
 
   ngOnInit(): void {
-    this.disciplinas = this.usuarioService.listarDisciplinas(); // Carrega as disciplinas do usuário
+    this.disciplinas = this.fireService.listarDisciplinas(); // Carrega as disciplinas do usuário
   }
 
   onDisciplinaSelecionada(disciplina: Disciplina): void {
@@ -35,7 +37,7 @@ export class TarefasComponent implements OnInit {
 
   carregarTarefas(idDisciplina: string): void {
     try {
-      this.tarefas = this.usuarioService.listarTarefas(idDisciplina); // Carrega as tarefas
+      this.tarefas = this.fireService.listarTarefas(idDisciplina); // Carrega as tarefas
     } catch (err) {
       this.sweet.erro('Erro ao carregar as tarefaa' );
     }
@@ -73,50 +75,69 @@ export class TarefasComponent implements OnInit {
   }
 
   salvarTarefa(tarefa: Tarefa): void {
-    if (!this.disciplinaSelecionada) return;
-
-    try {
-      const sucesso = this.usuarioService.criarTarefa(
-        tarefa,
-        String(this.disciplinaSelecionada.id)
-      );
-      if (sucesso) {
-        this.carregarTarefas(String(this.disciplinaSelecionada.id)); // Atualiza a lista de tarefas
-        this.sweet.sucesso('Tarefa criada com sucesso');
+    if (this.disciplinaSelecionada){
+        this.fireService.criarTarefa(tarefa,String(this.disciplinaSelecionada.id)).subscribe({
+          next: () =>{
+            this.carregarTarefas(String(this.disciplinaSelecionada!.id));
+            this.sweet.sucesso('Tarefa criada com sucesso');
+          },
+          error:() =>{
+            this.sweet.erro('Erro ao criar a tarefa' );
+          }
+        });
       }
-    } catch (err) {
-      this.sweet.erro('Erro ao criar a tarefa' );
+      
     }
-  }
 
   editarTarefa(tarefa: Tarefa): void {
-    if (!this.disciplinaSelecionada) return;
+    if (this.disciplinaSelecionada) {
+      this.fireService.alterarTarefa(tarefa,String(this.disciplinaSelecionada.id)).subscribe({
+        next: () =>{
+          this.carregarTarefas(String(this.disciplinaSelecionada!.id));
+          this.sweet.sucesso('Tarefa atualizada com sucesso');
+        },
+        error:() =>{
+          this.sweet.erro('Erro ao atualizar a tarefa' );
+        }
+      })
+    };
 
-    try {
-      const sucesso = this.usuarioService.alterarTarefa(tarefa,String(this.disciplinaSelecionada.id));
-      if (sucesso) {
-        this.carregarTarefas(String(this.disciplinaSelecionada.id)); // Atualiza a lista de tarefas
-        this.sweet.sucesso('Tarefa atualizada com sucesso');
-      }
-    } catch (err) {
-      this.sweet.erro('Erro ao atualizar a tarefa' );
-    }
+    // try {
+    //   const sucesso = this.usuarioService.alterarTarefa(tarefa,String(this.disciplinaSelecionada.id));
+    //   if (sucesso) {
+    //     this.carregarTarefas(String(this.disciplinaSelecionada.id)); // Atualiza a lista de tarefas
+    //     this.sweet.sucesso('Tarefa atualizada com sucesso');
+    //   }
+    // } catch (err) {
+    //   this.sweet.erro('Erro ao atualizar a tarefa' );
+    // }
   }
 
   removerTarefa(idTarefa: number): void {
-    if (!this.disciplinaSelecionada) return;
-
-    try {
-      const sucesso = this.usuarioService.removerTarefa(
-        idTarefa,
-        String(this.disciplinaSelecionada.id)
-      );
-      if (sucesso) {
-        this.carregarTarefas(String(this.disciplinaSelecionada.id)); // Atualiza a lista de tarefas
-        this.sweet.sucesso('Tarefa removida com sucesso');
-      }
-    } catch (err) {
-      this.sweet.erro('Erro ao remover a tarefa' );
+    if (this.disciplinaSelecionada) {
+      this.fireService.removerTarefa(idTarefa,String(this.disciplinaSelecionada.id)).subscribe({
+        next: () =>{
+          this.carregarTarefas(String(this.disciplinaSelecionada!.id));
+          this.sweet.sucesso('Tarefa removida com sucesso');
+        },
+        error: ()=>{
+          this.sweet.erro('Erro ao remover a tarefa' );
+        }
+      });
     }
+
+
+    // try {
+    //   const sucesso = this.fireService.removerTarefa(
+    //     idTarefa,
+    //     String(this.disciplinaSelecionada.id)
+    //   );
+    //   if (sucesso) {
+    //     this.carregarTarefas(String(this.disciplinaSelecionada.id)); // Atualiza a lista de tarefas
+    //     this.sweet.sucesso('Tarefa removida com sucesso');
+    //   }
+    // } catch (err) {
+    //   this.sweet.erro('Erro ao remover a tarefa' );
+    // }
   }
 }

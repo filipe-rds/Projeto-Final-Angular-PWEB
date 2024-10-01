@@ -107,27 +107,6 @@ export class UsuarioFirestoreService {
   }
   
 
-    // criarUsuario(usuario:Usuario): Observable<Usuario>{
-    //   return this.httpClient.post<Usuario>(this.API,usuario).pipe(
-    //     switchMap(usuarioAdicionado =>{
-    //       const usuarioParaFirestore: Usuario = {
-    //         ...usuarioAdicionado,
-    //         senha: '',  // ou deixar vazio ou fazer um DTO para usuario sem a senha
-    //         disciplinas: usuario.disciplinas // Inicializa como um array vazio
-    //       };
-  
-    //       return from(this.colecaoUsuarios.add(usuarioParaFirestore)).pipe(
-    //         map(() => usuarioAdicionado),
-    //         catchError(err => {return throwError(err)})
-    //       );       
-    //       // return this.login(usuario);
-    //     }),
-    //     catchError(err => {
-    //       return throwError(err);
-    //     })   
-    //   );
-    // }
-
     public listar(): Observable<Usuario[]>{
       return this.httpClient.get<Usuario[]>(this.API);
     }
@@ -164,7 +143,7 @@ export class UsuarioFirestoreService {
             return from(this.colecaoUsuarios.doc(usuario.idField).set({
               id:usuario.id,
               idField:usuario.idField,
-              disciplinas: usuario.disciplinas.map(this.serializeDisciplina)
+              disciplinas: usuario.disciplinas.map(disciplina =>this.serializeDisciplina(disciplina))
             })).pipe(
               catchError(err => {
                 console.error("Erro ao atualizar usuário no Firestore:", err);
@@ -211,20 +190,20 @@ export class UsuarioFirestoreService {
       );
     }
 
-    //  serializeTarefa(tarefa: Tarefa): {id: number,nome:string,descricao:string} {
-    //   return {
-    //     id: tarefa.id,
-    //     nome: tarefa.nome,
-    //     descricao: tarefa.descricao,
-    //   };
-    // }
+     serializeTarefa(tarefa: Tarefa): {id: number,nome:string,descricao:string} {
+      return {
+        id: tarefa.id,
+        nome: tarefa.nome,
+        descricao: tarefa.descricao,
+      };
+    }
 
-    serializeDisciplina(disciplina: Disciplina): {id: number; nome: string; descricao: string; tarefas:[]} {
+    serializeDisciplina(disciplina: Disciplina): {id: number; nome: string; descricao: string; tarefas:{id: number,nome: string, descricao: string}[]} {
       return {
         id: disciplina.id,
         nome: disciplina.nome,
         descricao: disciplina.descricao,
-        tarefas: []
+        tarefas: disciplina.tarefas.map(tarefa =>this.serializeTarefa(tarefa))
       };
     }
 
@@ -300,7 +279,8 @@ export class UsuarioFirestoreService {
     }
 
 
-    
+    //CRUD de disciplinas 
+
     alterarDisciplina(disciplina: Disciplina){
       if (disciplina.nome.length <= 0) {
         throw new Error('Nome da disciplina não pode ser vazio');
@@ -389,5 +369,209 @@ export class UsuarioFirestoreService {
         throw new Error('Usuário não possui nenhuma disicplina cadastrada');
       }
     }
+    // crud tarefas
 
-}
+    listarTarefas(idDisciplina: string): Tarefa[] {
+      if (idDisciplina.length <= 0) {
+        throw new Error('Id da disciplina não pode ser vazio');
+      }
+  
+      let usuario: UsuarioDTO | null = this.localStorageService.lerUsuarioDTO();
+  
+      if (usuario == null) {
+        throw new Error('Usuário não encontrado');
+      }
+  
+      if (usuario.disciplinas.length > 0) {
+        let disciplinaEncontrada = usuario.disciplinas.find(
+          (element) => element.id == Number(idDisciplina)
+        );
+        console.log(disciplinaEncontrada);
+  
+        if (disciplinaEncontrada) {
+          if (disciplinaEncontrada.tarefas.length >= 0) {
+            return disciplinaEncontrada.tarefas;
+          } else {
+            throw new Error('Disciplina não possui nenhuma tarefa cadastrada');
+          }
+        } else {
+          throw new Error('Disciplina não encontrada');
+        }
+      } else {
+        throw new Error('Usuário não possui nenhuma disciplina cadastrada');
+      }
+    }
+
+    criarTarefa(tarefa: Tarefa, idDisciplina: string):Observable<any> {
+      if (idDisciplina.length <= 0) {
+        throw new Error('Id da disciplina não pode ser vazio');
+      }
+  
+      if (tarefa.nome.length <= 0) {
+        throw new Error('Nome da tarefa não pode ser vazio');
+      }
+  
+      if (tarefa.descricao.length <= 0) {
+        throw new Error('Descrição da tarefa não pode ser vazia');
+      }
+  
+      let usuario: UsuarioDTO | null = this.localStorageService.lerUsuarioDTO();
+  
+      if (usuario == null) {
+        throw new Error('Usuário não encontrado');
+      }
+  
+      //ok
+  
+      if (usuario.disciplinas.length > 0) {
+        let disciplinaEncontrada = usuario.disciplinas.find(
+          (element) => element.id == Number(idDisciplina)
+        );
+  
+        //ok
+  
+        if (disciplinaEncontrada) {
+          let tamanho: number = disciplinaEncontrada.tarefas.length;
+          let id: number;
+  
+          if (tamanho > 0) {
+            id = Number(disciplinaEncontrada.tarefas[tamanho - 1].id) + 1;
+          } else {
+            id = 1;
+          }
+  
+          tarefa.id = id;
+  
+          disciplinaEncontrada.tarefas.push(tarefa);
+          //(usuario);
+          return this.alterarFirestore(usuario).pipe(
+            map(() =>{
+              console.log(usuario);
+              this.localStorageService.atualizarUsuarioDTO(usuario);
+              console.log("Local Storage atualizado:", this.localStorageService.lerUsuarioDTO());
+              return usuario;
+            }),
+            catchError(err => {
+              console.error("Erro ao atualizar tarefas no Firestore:", err);
+              return throwError(() => new Error("Erro ao atualizar as tarefas"));
+            })
+          );
+  
+        } else {
+          throw new Error('Disciplina não encontrada');
+        }
+      } else {
+        throw new Error('Usuário não possui nenhuma disciplina cadastrada');
+      }
+    }
+
+    alterarTarefa(tarefa: Tarefa, idDisciplina: string):Observable<any>{
+      if (idDisciplina.length <= 0) {
+        throw new Error('Id da disciplina não pode ser vazio');
+      }
+  
+      if (tarefa.nome.length <= 0) {
+        throw new Error('Nome da tarefa não pode ser vazio');
+      }
+  
+      if (tarefa.descricao.length <= 0) {
+        throw new Error('Descrição da tarefa não pode ser vazia');
+      }
+  
+      let usuario: UsuarioDTO | null = this.localStorageService.lerUsuarioDTO();
+  
+      if (usuario == null) {
+        throw new Error('Usuário não encontrado');
+      }
+  
+      //ok
+
+      let indexDisciplina = usuario.disciplinas.findIndex(
+        (element) => element.id == Number(idDisciplina)
+      );
+
+      if(indexDisciplina !== -1){
+        let indexTarefa = usuario.disciplinas[indexDisciplina].tarefas.findIndex((element) => element.id == tarefa.id);
+  
+          if (indexTarefa !== -1) {
+            usuario.disciplinas[indexDisciplina].tarefas[indexTarefa] = tarefa;
+            this.localStorageService.atualizarUsuarioDTO(usuario);
+            // Lucas, dava pra usar PATCH nessa situação?
+            return this.alterarFirestore(usuario).pipe(
+              map(() =>{
+                console.log(usuario);
+                this.localStorageService.atualizarUsuarioDTO(usuario);
+                console.log("Local Storage atualizado:", this.localStorageService.lerUsuarioDTO());
+                return usuario;
+              }),
+              catchError(err => {
+                console.error("Erro ao atualizar tarefas no Firestore:", err);
+                return throwError(() => new Error("Erro ao atualizar as tarefas"));
+              })
+            );
+          } else {
+            throw new Error('Tarefa não encontrada');
+          }
+        } else {
+          throw new Error('Disciplina não encontrada');
+        }
+    }
+
+    removerTarefa(idTarefa: number, idDisciplina: string):Observable<any>{
+      if (idDisciplina.length <= 0) {
+        throw new Error('Id da disciplina não pode ser vazio');
+      }
+  
+      if (idTarefa <= 0) {
+        throw new Error('Id da tarefa não pode ser vazio');
+      }
+  
+      let usuario: UsuarioDTO | null = this.localStorageService.lerUsuarioDTO();
+  
+      if (usuario == null) {
+        throw new Error('Usuário não encontrado');
+      }
+  
+      let indexDisciplina = usuario.disciplinas.findIndex(
+        (element) => element.id == Number(idDisciplina)
+      );
+
+      if (indexDisciplina !== -1) {
+        let indexTarefa = usuario.disciplinas[indexDisciplina].tarefas.findIndex(
+          (element) => element.id == idTarefa
+        );
+
+        if (indexTarefa !== -1) {
+          // Remove a tarefa
+          usuario.disciplinas[indexDisciplina].tarefas.splice(indexTarefa, 1);
+          console.log(usuario.disciplinas[indexDisciplina].tarefas);
+          console.log(usuario.disciplinas);
+      
+            //(usuario);
+            return this.alterarFirestore(usuario).pipe(
+              map(() =>{
+                console.log(usuario);
+                this.localStorageService.atualizarUsuarioDTO(usuario);
+                console.log("Local Storage atualizado:", this.localStorageService.lerUsuarioDTO());
+                return usuario;
+              }),
+              catchError(err => {
+                console.error("Erro ao atualizar tarefas no Firestore:", err);
+                return throwError(() => new Error("Erro ao atualizar as tarefas"));
+              })
+            );
+  
+            
+          } else {
+            throw new Error('Tarefa não encontrada');
+          }
+        } else {
+          throw new Error('Disciplina não encontrada');
+        }
+      }
+
+
+    }
+  
+
+
