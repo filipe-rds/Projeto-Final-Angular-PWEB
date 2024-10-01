@@ -57,7 +57,7 @@ export class UsuarioFirestoreService {
       dto.disciplinas = []; // Inicializa como um array vazio se for indefinido
     }
 
-    console.log('Tentando adicionar o usuário ao Firestore:', dto);
+    //console.log('Tentando adicionar o usuário ao Firestore:', dto);
 
     const usuarioData = {
       id: dto.id,
@@ -86,15 +86,15 @@ export class UsuarioFirestoreService {
     );
   }
   criarUsuario(usuario: Usuario): Observable<any> {
-    console.log('Iniciando criação do usuário:', usuario);
+    //console.log('Iniciando criação do usuário:', usuario);
     return this.criarUsuarioPostgres(usuario).pipe(
-      tap(usuarioCriado => console.log('Usuário criado no Postgres:', usuarioCriado)),
+      // tap(usuarioCriado => console.log('Usuário criado no Postgres:', usuarioCriado)),
       switchMap(usuarioCriado => {
         return this.criarUsuarioFirestore(usuarioCriado).pipe(
-          tap(idFirestore => console.log('Usuário criado no Firestore com id:', idFirestore)),
+          // tap(idFirestore => console.log('Usuário criado no Firestore com id:', idFirestore)),
           map(idFirestore => {
-            console.log("2");
-            console.log('Usuário criado com sucesso no Firestore com id:', idFirestore);
+            //console.log("2");
+            //console.log('Usuário criado com sucesso no Firestore com id:', idFirestore);
             return usuarioCriado; // Retorna o usuário criado
           })
         )
@@ -154,7 +154,7 @@ export class UsuarioFirestoreService {
   
     
     public alterarUsuario(usuario: Usuario): Observable<any>{
-       return this.httpClient.put<Usuario>(this.API + "/" + usuario.id, usuario);    
+       return this.httpClient.patch<Usuario>(this.API + "/" + usuario.id, usuario);    
     }
 
     login(usuario: Usuario): Observable<any> {
@@ -304,7 +304,7 @@ export class UsuarioFirestoreService {
           if(indiceDisciplina !== -1){
             console.log(usuario.disciplinas[indiceDisciplina]);
             usuario.disciplinas[indiceDisciplina] = disciplina;
-            console.log(usuario.disciplinas[indiceDisciplina]);
+            //console.log(usuario.disciplinas[indiceDisciplina]);
             return this.alterarFirestore(usuario).pipe(
               map(() => {
                 console.log(usuario);
@@ -338,9 +338,9 @@ export class UsuarioFirestoreService {
 
         return this.alterarFirestore(usuario).pipe(
           map(() =>{
-            console.log(usuario);
+            //console.log(usuario);
             this.localStorageService.atualizarUsuarioDTO(usuario);
-            console.log("Local Storage atualizado:", this.localStorageService.lerUsuarioDTO());
+            //console.log("Local Storage atualizado:", this.localStorageService.lerUsuarioDTO());
             return usuario;
           }),
           catchError(err => {
@@ -386,7 +386,7 @@ export class UsuarioFirestoreService {
         let disciplinaEncontrada = usuario.disciplinas.find(
           (element) => element.id == Number(idDisciplina)
         );
-        console.log(disciplinaEncontrada);
+        //console.log(disciplinaEncontrada);
   
         if (disciplinaEncontrada) {
           if (disciplinaEncontrada.tarefas.length >= 0) {
@@ -446,9 +446,9 @@ export class UsuarioFirestoreService {
           //(usuario);
           return this.alterarFirestore(usuario).pipe(
             map(() =>{
-              console.log(usuario);
+              //console.log(usuario);
               this.localStorageService.atualizarUsuarioDTO(usuario);
-              console.log("Local Storage atualizado:", this.localStorageService.lerUsuarioDTO());
+              //console.log("Local Storage atualizado:", this.localStorageService.lerUsuarioDTO());
               return usuario;
             }),
             catchError(err => {
@@ -499,9 +499,9 @@ export class UsuarioFirestoreService {
             // Lucas, dava pra usar PATCH nessa situação?
             return this.alterarFirestore(usuario).pipe(
               map(() =>{
-                console.log(usuario);
+                //console.log(usuario);
                 this.localStorageService.atualizarUsuarioDTO(usuario);
-                console.log("Local Storage atualizado:", this.localStorageService.lerUsuarioDTO());
+                //console.log("Local Storage atualizado:", this.localStorageService.lerUsuarioDTO());
                 return usuario;
               }),
               catchError(err => {
@@ -544,15 +544,15 @@ export class UsuarioFirestoreService {
         if (indexTarefa !== -1) {
           // Remove a tarefa
           usuario.disciplinas[indexDisciplina].tarefas.splice(indexTarefa, 1);
-          console.log(usuario.disciplinas[indexDisciplina].tarefas);
-          console.log(usuario.disciplinas);
+          // console.log(usuario.disciplinas[indexDisciplina].tarefas);
+          // console.log(usuario.disciplinas);
       
             //(usuario);
             return this.alterarFirestore(usuario).pipe(
               map(() =>{
-                console.log(usuario);
+                //console.log(usuario);
                 this.localStorageService.atualizarUsuarioDTO(usuario);
-                console.log("Local Storage atualizado:", this.localStorageService.lerUsuarioDTO());
+                //console.log("Local Storage atualizado:", this.localStorageService.lerUsuarioDTO());
                 return usuario;
               }),
               catchError(err => {
