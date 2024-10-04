@@ -1,27 +1,41 @@
-# StudyManager
+<h1 align="center">
+  <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Objects/Books.webp" alt="Books" width="40" height="40" /> Study Manager
+</h1>
+<p align="center">
+  <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/filipe-rds/Projeto-Final-Angular-PWEB?color=white">
+  <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/filipe-rds/Projeto-Final-Angular-PWEB?color=white">
+  <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/filipe-rds/Projeto-Final-Angular-PWEB?color=white">
+  <img alt="GitHub license" src="https://img.shields.io/github/license/filipe-rds/Projeto-Final-Angular-PWEB?color=white"><img>
+</p>
+<div style="display: inline_block" ><br>
+    <h3><img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Rocket.png" alt="Rocket" width="30" height="30" /> Objetivo</h3>
+    <p>O <strong>Study Manager</strong> é uma aplicação projetada para ajudar estudantes a organizar suas rotinas de estudo, estabelecendo metas claras e monitorando o progresso ao longo do tempo. O objetivo é reduzir a procrastinação e aumentar a motivação, contribuindo para um desempenho acadêmico mais eficaz.</p>
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.1.
+  <h3><img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Robot.png" alt="Robot" width="30" height="30" /> Principais Funcionalidades</h3>
+  <ul>
+      <li><strong>Cadastro e Login de Usuário</strong>: Criação de contas e acesso seguro ao sistema.</li>
+      <li><strong>Gerenciamento de Usuário</strong>: Possibilidade de criar e editar perfis de usuários.</li>
+      <li><strong>Organização de Estudos</strong>: Criação de disciplinas e tarefas personalizadas para melhor gerenciamento das atividades de estudo.</li>
+  </ul>
+</div>
 
-## Development server
+<div style="display: inline_block" >
+    <h3><img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Objects/Laptop.webp" alt="Laptop" width="25" height="25" /> Tecnologias e Ferramentas</h3>
+    <img alt= "Angular" src="https://img.shields.io/badge/Angular-000000?style=for-the-badge&logo=angular&logoColor=white">
+    <img alt= "TypeScript" src="https://img.shields.io/badge/TypeScript-000000?style=for-the-badge&logo=typescript&logoColor=white">
+    <img alt= "Firestote" src="https://img.shields.io/badge/Firestore-000000?style=for-the-badge&logo=firebase&logoColor=white">
+</div>
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+<div style="display: inline_block" >
+  <h3><img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Objects/File%20Folder.webp" alt="File Folder" width="30" height="30" /> API implementada para a aplicação</h3>
+  <a align="center" href="https://github.com/filipe-rds/Projeto-Final-Spring-PWEB" target="_blank"><img  src="https://img.shields.io/badge/API_Study_Manager-000000?style=for-the-badge&logo=GitHub&logoColor=white" target="_blank"></a>
+</div>
 
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+<div style="display: inline_block" >
+  <h3><img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/People%20with%20professions/Technologist%20Light%20Skin%20Tone.png" alt="Technologist Light Skin Tone" width="30" height="30" /> Devs</h3>
+  <div style="flex">
+    <a align="center" href="https://github.com/filipe-rds" target="_blank"><img  src="https://img.shields.io/badge/Filipe_Rodrigues-000000?style=for-the-badge&logo=GitHub&logoColor=white" target="_blank"></a>
+    <a align="center" href="https://github.com/gfedacs" target="_blank"><img  src="https://img.shields.io/badge/Gabriel_Félix-000000?style=for-the-badge&logo=GitHub&logoColor=white" target="_blank"></a>
+    <a align="center" href="https://github.com/LucasJaud" target="_blank"><img  src="https://img.shields.io/badge/Lucas_Pedro-000000?style=for-the-badge&logo=GitHub&logoColor=white" target="_blank"></a>
+  </div>
+</div>
