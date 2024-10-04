@@ -7,9 +7,12 @@
   <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/filipe-rds/Projeto-Final-Angular-PWEB?color=white">
   <img alt="GitHub license" src="https://img.shields.io/github/license/filipe-rds/Projeto-Final-Angular-PWEB?color=white"><img>
 </p>
+<div align="center">
+  <img src="assets\preview.png" height="700" width="1200"><br>
+</div>
 <div style="display: inline_block" ><br>
     <h3><img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Rocket.png" alt="Rocket" width="30" height="30" /> Objetivo</h3>
-    <p>O <strong>Study Manager</strong> é uma aplicação projetada para ajudar estudantes a organizar suas rotinas de estudo, estabelecendo metas claras e monitorando o progresso ao longo do tempo. O objetivo é reduzir a procrastinação e aumentar a motivação, contribuindo para um desempenho acadêmico mais eficaz.</p>
+    <p>O <strong>Study Manager</strong> é uma aplicação projetada para ajudar estudantes a organizar suas rotinas de estudo, estabelecendo metas claras. O objetivo é reduzir a procrastinação e aumentar a motivação, contribuindo para um desempenho acadêmico mais eficaz.</p>
 
   <h3><img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Robot.png" alt="Robot" width="30" height="30" /> Principais Funcionalidades</h3>
   <ul>
