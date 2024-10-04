@@ -8,7 +8,7 @@
   <img alt="GitHub license" src="https://img.shields.io/github/license/filipe-rds/Projeto-Final-Angular-PWEB?color=white"><img>
 </p>
 <div align="center">
-  <img src="assets\preview.png" height="700" width="1200"><br>
+  <img src="assets\preview.png" height="500" width="900"><br>
 </div>
 <div style="display: inline_block" ><br>
     <h3><img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Rocket.png" alt="Rocket" width="30" height="30" /> Objetivo</h3>
