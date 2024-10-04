@@ -24,6 +24,9 @@
     <img alt= "Angular" src="https://img.shields.io/badge/Angular-000000?style=for-the-badge&logo=angular&logoColor=white">
     <img alt= "TypeScript" src="https://img.shields.io/badge/TypeScript-000000?style=for-the-badge&logo=typescript&logoColor=white">
     <img alt= "Firestote" src="https://img.shields.io/badge/Firestore-000000?style=for-the-badge&logo=firebase&logoColor=white">
+    <img alt= "Java" src="https://img.shields.io/badge/Java-000000?style=for-the-badge&logo=openjdk&logoColor=white">
+    <img alt= "Spring Boot" src="https://img.shields.io/badge/Spring_Boot-000000?style=for-the-badge&logo=spring&logoColor=white">
+    <img alt= "PortgreSQL" src="https://img.shields.io/badge/PostgreSQL-000000?style=for-the-badge&logo=postgresql&logoColor=white">
 </div>
 
 <div style="display: inline_block" >
